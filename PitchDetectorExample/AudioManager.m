@@ -145,10 +145,12 @@ static OSStatus recordingCallback(void *inRefCon,
     
     AudioManager *THIS = (__bridge AudioManager*) inRefCon;
     
+    SInt16 * localData = (SInt16*) malloc(sizeof(SInt16)*inNumberFrames);
+    
     THIS->bufferList.mNumberBuffers = 1;
     THIS->bufferList.mBuffers[0].mDataByteSize = sizeof(SInt16)*inNumberFrames;
     THIS->bufferList.mBuffers[0].mNumberChannels = 1;
-    THIS->bufferList.mBuffers[0].mData = (SInt16*) malloc(sizeof(SInt16)*inNumberFrames);
+    THIS->bufferList.mBuffers[0].mData = localData;
     
     OSStatus status;
     
@@ -161,7 +163,8 @@ static OSStatus recordingCallback(void *inRefCon,
     checkStatus(status);
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [THIS.delegate  receivedAudioSamples:(SInt16*)THIS->bufferList.mBuffers[0].mData length:inNumberFrames];
+        [THIS.delegate receivedAudioSamples:localData length:inNumberFrames];
+        free(localData);
     }); 
     
     return noErr;

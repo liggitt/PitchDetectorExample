@@ -9,13 +9,13 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "AudioController.h"
+#import "AudioManager.h"
 #import "PitchDetector.h"
 
-@interface FreqViewController : UIViewController <PitchDetectorDelegate, AudioControllerDelegate>
+@interface FreqViewController : UIViewController <PitchDetectorDelegate, AudioManagerDelegate>
 {
     UILabel *freqLabel;
-    AudioController *audioManager;
+    AudioManager *audioManager;
     PitchDetector *autoCorrelator;
     
     NSMutableArray *medianPitchFollow;

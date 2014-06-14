@@ -8,23 +8,23 @@
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#import "AudioController.h"
+#import "AudioManager.h"
 
 #define kOutputBus 0
 #define kInputBus 1
 
-@implementation AudioController
+@implementation AudioManager
 @synthesize rioUnit, audioFormat, delegate;
 
 
-+ (AudioController *) sharedAudioManager
++ (AudioManager *) sharedAudioManager
 {
-    static AudioController *sharedAudioManager;
+    static AudioManager *sharedAudioManager;
     
     @synchronized(self)
     {
         if (!sharedAudioManager) {
-            sharedAudioManager = [[AudioController alloc] init];
+            sharedAudioManager = [[AudioManager alloc] init];
             [sharedAudioManager startAudio];
         }
         return sharedAudioManager;
@@ -143,7 +143,7 @@ static OSStatus recordingCallback(void *inRefCon,
                                   UInt32 inNumberFrames, 
                                   AudioBufferList *ioData) {
     
-    AudioController *THIS = (__bridge AudioController*) inRefCon;
+    AudioManager *THIS = (__bridge AudioManager*) inRefCon;
     
     THIS->bufferList.mNumberBuffers = 1;
     THIS->bufferList.mBuffers[0].mDataByteSize = sizeof(SInt16)*inNumberFrames;
@@ -174,6 +174,13 @@ static OSStatus recordingCallback(void *inRefCon,
     OSStatus status = AudioOutputUnitStart(rioUnit);
     checkStatus(status);
     printf("Audio Initialized - sampleRate: %f\n", audioFormat.mSampleRate);
+}
+
+-(void) stopAudio
+{
+    OSStatus status = AudioOutputUnitStop(rioUnit);
+    checkStatus(status);
+    printf("Audio Stopped");
 }
 
 @end

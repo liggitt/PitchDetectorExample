@@ -11,22 +11,23 @@
 #import <Foundation/Foundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
-@protocol AudioControllerDelegate
+@protocol AudioManagerDelegate
 @required
 - (void) receivedAudioSamples:(SInt16*) samples length:(int) len;
 @end
 
-@interface AudioController : NSObject 
+@interface AudioManager : NSObject
 {
     @public
     AudioBufferList bufferList;
 }
 @property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
 @property (nonatomic, assign) AudioUnit rioUnit;
-@property (nonatomic, assign) id<AudioControllerDelegate> delegate;
+@property (nonatomic, assign) id<AudioManagerDelegate> delegate;
 
-+ (AudioController*) sharedAudioManager;
++ (AudioManager*) sharedAudioManager;
 - (void) startAudio;
+- (void) stopAudio;
 
 
 @end

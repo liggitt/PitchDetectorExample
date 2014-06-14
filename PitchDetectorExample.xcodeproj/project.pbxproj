@@ -15,7 +15,7 @@
 		101E676A15A511E700FFF744 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 101E676915A511E700FFF744 /* AppDelegate.m */; };
 		101E677E15A512A800FFF744 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 101E677C15A512A800FFF744 /* Accelerate.framework */; };
 		101E677F15A512A800FFF744 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 101E677D15A512A800FFF744 /* AudioToolbox.framework */; };
-		101E678815A5163300FFF744 /* AudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 101E678115A5163300FFF744 /* AudioController.m */; };
+		101E678815A5163300FFF744 /* AudioManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 101E678115A5163300FFF744 /* AudioManager.m */; };
 		101E678915A5163300FFF744 /* FreqViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 101E678315A5163300FFF744 /* FreqViewController.m */; };
 		101E678A15A5163300FFF744 /* PitchDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = 101E678515A5163300FFF744 /* PitchDetector.m */; };
 		101E678D15A5177E00FFF744 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 101E678C15A5177E00FFF744 /* README.txt */; };
@@ -34,8 +34,8 @@
 		101E676915A511E700FFF744 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		101E677C15A512A800FFF744 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		101E677D15A512A800FFF744 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
-		101E678015A5163300FFF744 /* AudioController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioController.h; sourceTree = "<group>"; };
-		101E678115A5163300FFF744 /* AudioController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioController.m; sourceTree = "<group>"; };
+		101E678015A5163300FFF744 /* AudioManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioManager.h; sourceTree = "<group>"; };
+		101E678115A5163300FFF744 /* AudioManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioManager.m; sourceTree = "<group>"; };
 		101E678215A5163300FFF744 /* FreqViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FreqViewController.h; sourceTree = "<group>"; };
 		101E678315A5163300FFF744 /* FreqViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FreqViewController.m; sourceTree = "<group>"; };
 		101E678415A5163300FFF744 /* PitchDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PitchDetector.h; sourceTree = "<group>"; };
@@ -91,8 +91,8 @@
 		101E675F15A511E700FFF744 /* PitchDetectorExample */ = {
 			isa = PBXGroup;
 			children = (
-				101E678015A5163300FFF744 /* AudioController.h */,
-				101E678115A5163300FFF744 /* AudioController.m */,
+				101E678015A5163300FFF744 /* AudioManager.h */,
+				101E678115A5163300FFF744 /* AudioManager.m */,
 				101E678215A5163300FFF744 /* FreqViewController.h */,
 				101E678315A5163300FFF744 /* FreqViewController.m */,
 				101E678415A5163300FFF744 /* PitchDetector.h */,
@@ -181,7 +181,7 @@
 			files = (
 				101E676615A511E700FFF744 /* main.m in Sources */,
 				101E676A15A511E700FFF744 /* AppDelegate.m in Sources */,
-				101E678815A5163300FFF744 /* AudioController.m in Sources */,
+				101E678815A5163300FFF744 /* AudioManager.m in Sources */,
 				101E678915A5163300FFF744 /* FreqViewController.m in Sources */,
 				101E678A15A5163300FFF744 /* PitchDetector.m in Sources */,
 			);

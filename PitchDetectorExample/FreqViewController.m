@@ -29,7 +29,7 @@
 {
     [super viewDidLoad];
     // Init audio manager
-    audioManager = [AudioController sharedAudioManager];
+    audioManager = [AudioManager sharedAudioManager];
     // Init correlator
     autoCorrelator = [[PitchDetector alloc] initWithSampleRate:audioManager.audioFormat.mSampleRate lowBoundFreq:30 hiBoundFreq:4500 andDelegate:self];
     

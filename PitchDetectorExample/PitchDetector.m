@@ -19,26 +19,25 @@
 #pragma mark Initialize Methods
 
 
--(id) initWithSampleRate: (float) rate andDelegate: (id<PitchDetectorDelegate>) initDelegate {
-    return [self initWithSampleRate:rate lowBoundFreq:40 hiBoundFreq:4500 andDelegate:initDelegate];
-}
-
 -(id) initWithSampleRate: (float) rate lowBoundFreq: (int) low hiBoundFreq: (int) hi andDelegate: (id<PitchDetectorDelegate>) initDelegate {
-    self.lowBoundFrequency = low;
+    self.lowBoundFrequency = self.targetFrequency = low;
     self.hiBoundFrequency = hi;
     self.sampleRate = rate;
     self.delegate = initDelegate;
     
-    bufferLength = self.sampleRate/self.lowBoundFrequency;    
+    // Possible offsets we would need to try to detect the lowest (longest) frequency
+    windowLength = self.sampleRate/self.lowBoundFrequency;
     
+    // Number of samples needed to accomodate comparing the window and the maximum offset
+    bufferLength = 2 * windowLength;
     
-    hann = (float*) malloc(sizeof(float)*bufferLength);
+    hann = (float*) malloc(sizeof(float)*windowLength);
     vDSP_hann_window(hann, bufferLength, vDSP_HANN_NORM);
     
-    sampleBuffer = (SInt16*) malloc(512);
+    sampleBuffer = (SInt16*) malloc(sizeof(SInt16)*bufferLength);
     samplesInSampleBuffer = 0;
     
-    result = (float*) malloc(sizeof(float)*bufferLength);
+    result = (float*) malloc(sizeof(float)*windowLength);
     
     return self;
 }
@@ -46,36 +45,29 @@
 #pragma  mark Insert Samples
 
 - (void) addSamples:(SInt16 *)samples inNumberFrames:(int)frames {
-    int newLength = frames;
-    if(samplesInSampleBuffer>0) {
-        newLength += samplesInSampleBuffer;
-    }
+    // Skip if we're waiting on a full buffer to be processed
+    if (self.running)
+        return;
+
+    // Add the new samples to the end of the buffer, up to a full buffer
+    int samplesToAdd = MIN(frames, bufferLength - samplesInSampleBuffer);
+    memcpy(&sampleBuffer[samplesInSampleBuffer], samples, samplesToAdd*sizeof(SInt16));
+    samplesInSampleBuffer += samplesToAdd;
     
-    SInt16 *newBuffer = (SInt16*) malloc(sizeof(SInt16)*newLength);
-    memcpy(newBuffer, sampleBuffer, samplesInSampleBuffer*sizeof(SInt16));
-    memcpy(&newBuffer[samplesInSampleBuffer], samples, frames*sizeof(SInt16));
-    
-    free(sampleBuffer);
-    sampleBuffer = newBuffer;
-    samplesInSampleBuffer = newLength;
-    
-    if(samplesInSampleBuffer>bufferLength) {
-        if(!self.running) {
-            [self performSelectorInBackground:@selector(performWithNumFrames:) withObject:[NSNumber numberWithInt:newLength]];
-            self.running = YES;
-        }
+    if(samplesInSampleBuffer == bufferLength) {
+        self.running = YES;
+        [self performSelectorInBackground:@selector(detect:) withObject:[NSNull null]];
         samplesInSampleBuffer = 0;
     } else {
-        //printf("NOT ENOUGH SAMPLES: %d\n", newLength);
+        //printf("NOT ENOUGH SAMPLES: %d\n", samplesInSampleBuffer);
     }
 }
 
 
 #pragma mark Perform Auto Correlation
 
--(void) performWithNumFrames: (NSNumber*) numFrames;
+-(void) detect: (id)arg;
 {
-    int n = MIN(bufferLength, numFrames.intValue);
     float freq = 0;
 
     SInt16 *samples = sampleBuffer;
@@ -84,17 +76,17 @@
     float sum;
     bool goingUp = false;
     float normalize = 0;
-        
-    for(int i = 0; i<n; i++) {
+    
+    for(int i = 0; i < windowLength; i++) {
         sum = 0;
-        for(int j = 0; j<n; j++) {
+        for(int j = 0; j < windowLength; j++) {
             sum += (samples[j]*samples[j+i])*hann[j];
         }
         if(i ==0 ) normalize = sum;
         result[i] = sum/normalize;
     }
     
-    for(int i = 1; i < n - 1; i++) {
+    for(int i = 1; i < windowLength - 1; i++) {
         if(result[i]<0) {
             i+=2; // no peaks below 0, skip forward at a faster rate
         } else {
@@ -123,6 +115,8 @@
             }       
         }
     }
+    
+    NSLog(@"%d", returnIndex);
     
     if (returnIndex > 0) {
         freq =self.sampleRate/interp(result[returnIndex-1], result[returnIndex], result[returnIndex+1], returnIndex);

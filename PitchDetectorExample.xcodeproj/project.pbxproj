@@ -144,6 +144,11 @@
 			attributes = {
 				LastUpgradeCheck = 0430;
 				ORGANIZATIONNAME = "New York University";
+				TargetAttributes = {
+					101E675415A511E700FFF744 = {
+						DevelopmentTeam = 76Y3MSMN4D;
+					};
+				};
 			};
 			buildConfigurationList = 101E674F15A511E700FFF744 /* Build configuration list for PBXProject "PitchDetectorExample" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -221,7 +226,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -239,7 +244,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -249,6 +254,7 @@
 		101E676E15A511E700FFF744 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PitchDetectorExample/PitchDetectorExample-Prefix.pch";
 				INFOPLIST_FILE = "PitchDetectorExample/PitchDetectorExample-Info.plist";
@@ -260,6 +266,7 @@
 		101E676F15A511E700FFF744 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PitchDetectorExample/PitchDetectorExample-Prefix.pch";
 				INFOPLIST_FILE = "PitchDetectorExample/PitchDetectorExample-Info.plist";

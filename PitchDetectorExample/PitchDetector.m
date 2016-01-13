@@ -38,6 +38,11 @@
     samplesInSampleBuffer = 0;
     
     result = (float*) malloc(sizeof(float)*windowLength);
+    result2 = (float*) malloc(sizeof(float)*windowLength);
+    
+    tmp1 = (float*) malloc(sizeof(float)*windowLength);
+    tmp2 = (float*) malloc(sizeof(float)*windowLength);
+    tmp3 = (float*) malloc(sizeof(float)*windowLength);
     
     return self;
 }
@@ -66,56 +71,92 @@
 
 #pragma mark Perform Auto Correlation
 
--(void) detect: (id)arg;
+static float normalize1;
+-(float) result1:(int)i
+{
+    float sum = 0;
+    for(int j = 0; j < windowLength; j++) {
+        sum += (sampleBuffer[j]*sampleBuffer[j+i])*hann[j];
+    }
+    if(i == 0 ) normalize1 = sum;
+    result[i] = sum/normalize1;
+    return result[i];
+}
+
+
+
+static float normalize2;
+-(float) result2:(int)i
+{
+    // Samples range from -32767 to 32767
+    SInt16 *samples = sampleBuffer;
+    
+    // Convert 0 window to floats
+    vDSP_vflt16(&samples[0], 1, tmp1, 1, windowLength);
+
+    // Convert i window to floats to tmp2
+    vDSP_vflt16(&samples[i], 1, tmp2, 1, windowLength);
+    // Multiply original by window to tmp3
+    vDSP_vmul(tmp1, 1, tmp2, 1, tmp3, 1, windowLength);
+    // Multiply tmp3 by hann to tmp2
+    vDSP_vmul(tmp3, 1, hann, 1, tmp2, 1, windowLength);
+    // Sum tmp2 to sum
+    vDSP_sve(tmp2, 1, &result2[i], windowLength);
+    
+    
+    if (i == 0) normalize2 = result2[0];
+
+    // divide by normalize
+    result2[i] = result2[i] / normalize2;
+    return result2[i];
+    
+//    vDSP_vsdiv(&result[0], 1, &normalize, &result[0], 1, windowLength);
+}
+
+
+-(float) detect1
 {
     float freq = 0;
-
-    SInt16 *samples = sampleBuffer;
-        
+    
     int returnIndex = 0;
-    float sum;
     bool goingUp = false;
-    float normalize = 0;
     
     for(int i = 0; i < windowLength; i++) {
-        sum = 0;
-        for(int j = 0; j < windowLength; j++) {
-            sum += (samples[j]*samples[j+i])*hann[j];
-        }
-        if(i ==0 ) normalize = sum;
-        result[i] = sum/normalize;
+        [self result1:i];
     }
     
+//    NSLog(@"1: %f, %f", result[0], result[1000]);
+
     for(int i = 1; i < windowLength - 1; i++) {
         if(result[i]<0) {
             i+=2; // no peaks below 0, skip forward at a faster rate
         } else {
-            if(result[i]>result[i-1] && goingUp == false && i >1) {
-        
+            if(result[i]>result[i-1] && goingUp == false && i > 1) {
+                
                 //local min at i-1
-            
+                
                 goingUp = true;
-            
+                
             } else if(goingUp == true && result[i]<result[i-1]) {
                 
                 //local max at i-1
-            
+                
                 if(returnIndex==0 && result[i-1]>result[0]*0.95) {
                     returnIndex = i-1;
-                    break; 
+                    break;
                     //############### NOTE ##################################
                     // My implemenation breaks out of this loop when it finds the first peak.
                     // This is (probably) the greatest source of error, so if you would like to
-                    // improve this algorithm, start here. the next else if() will trigger on 
+                    // improve this algorithm, start here. the next else if() will trigger on
                     // future local maxima (if you first take out the break; above this paragraph)
                     //#######################################################
                 } else if(result[i-1]>result[0]*0.85) {
                 }
                 goingUp = false;
-            }       
+            }
         }
     }
-
+    
     freq = 0;
     if (returnIndex > 0) {
         freq =self.sampleRate/interp(result[returnIndex-1], result[returnIndex], result[returnIndex+1], returnIndex);
@@ -123,6 +164,73 @@
             freq = 0;
         }
     }
+    
+    return freq;
+}
+
+
+-(float) detect2
+{
+    float freq = 0;
+    int returnIndex = 0;
+    bool goingUp = false;
+
+    for(int i = 0; i < windowLength; i++) {
+        [self result2:i];
+    }
+
+    NSLog(@"2: %f, %f", result2[0], result2[1000]);
+
+    for(int i = 1; i < windowLength - 1; i++) {
+        if(result[i]<0) {
+            i+=2; // no peaks below 0, skip forward at a faster rate
+        } else {
+            if(result[i]>result[i-1] && goingUp == false && i > 1) {
+                
+                //local min at i-1
+                
+                goingUp = true;
+                
+            } else if(goingUp == true && result[i]<result[i-1]) {
+                
+                //local max at i-1
+                
+                if(returnIndex==0 && result[i-1]>result[0]*0.95) {
+                    returnIndex = i-1;
+                    break;
+                    //############### NOTE ##################################
+                    // My implemenation breaks out of this loop when it finds the first peak.
+                    // This is (probably) the greatest source of error, so if you would like to
+                    // improve this algorithm, start here. the next else if() will trigger on
+                    // future local maxima (if you first take out the break; above this paragraph)
+                    //#######################################################
+                } else if(result[i-1]>result[0]*0.85) {
+                }
+                goingUp = false;
+            }
+        }
+    }
+    
+    freq = 0;
+    if (returnIndex > 0) {
+        freq =self.sampleRate/interp(result[returnIndex-1], result[returnIndex], result[returnIndex+1], returnIndex);
+        if(freq < self.lowBoundFrequency || freq > self.hiBoundFrequency) {
+            freq = 0;
+        }
+    }
+
+    return freq;
+}
+
+
+-(void) detect: (id)arg;
+{
+    float freq1 = [self detect1];
+    float freq2 = [self detect2];
+
+    NSLog(@"%f, %f", freq1, freq2);
+    
+    float freq = freq1;
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [delegate updatedPitch:freq];

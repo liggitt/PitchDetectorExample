@@ -15,7 +15,7 @@
 
 @interface PitchDetector : NSObject
 {
-    float *hann, *result;
+    float *hann, *result, *result2, *tmp1, *tmp2, *tmp3;
     SInt16 *sampleBuffer;
     int samplesInSampleBuffer;
     int bufferLength;
